@@ -16,6 +16,7 @@ export class BotSchedule {
 
   public start () {
     scheduleJob('0 0 0 * * ?', async () => {
+      // 推送当前日期的维基日图
       await this.sendGroupMessage(570727901, await new WikiPic().getText(new Date().toDateString()))
     })
   }

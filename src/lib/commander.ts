@@ -14,6 +14,7 @@ export class commander {
     app.command('wikipic [date]')
       .action(async (_) => {
         let date: string = new Date().toDateString()
+        // 判断[date]参数是否存在,存在则使用指定的日期
         if (typeof _.args !== 'undefined' && _.args.length > 0) date = _.args[0]
         return new WikiPic().getText(date)
       })

@@ -12,8 +12,11 @@ export default class {
 
   public async run () {
     await this.app.start()
+    // 定时任务
     new BotSchedule(this.app).start()
+    // 处理命令
     commander.index(this.app)
+    // 消息转发
     await Messenger(this.app)
     this.messageListener()
   }

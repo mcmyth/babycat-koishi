@@ -3,7 +3,9 @@ import { App } from 'koishi-core'
 const groupList: Array<number> = env.messenger
 export const Messenger = async (app: App): Promise<void> => {
   app.on('message', session => {
+    // 如果不是群消息或消息为空则不处理
     if (session.messageType !== 'group' || session.message == null) return
+    // 遍历数组所有群号,转发到除自身外的所有群
     for (let i = 0; i < groupList.length; i++) {
       if (groupList[i] !== session.groupId) {
         // 显示群名
