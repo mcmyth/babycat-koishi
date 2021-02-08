@@ -3,7 +3,7 @@ import { App } from 'koishi-core'
 import 'koishi-adapter-cqhttp'
 import { env } from './config/env'
 import { BotSchedule } from './plugin/schedule'
-
+import { Messenger } from './plugin/messenger'
 export default class {
   app: App
   constructor () {
@@ -14,6 +14,7 @@ export default class {
     await this.app.start()
     new BotSchedule(this.app).start()
     commander.index(this.app)
+    await Messenger(this.app)
     this.messageListener()
   }
 

@@ -1,0 +1,19 @@
+import { env } from '../config/env'
+import { App } from 'koishi-core'
+const groupList: Array<number> = env.messenger
+export const Messenger = async (app: App): Promise<void> => {
+  app.on('message', session => {
+    if (session.messageType !== 'group' || session.message == null) return
+    for (let i = 0; i < groupList.length; i++) {
+      if (groupList[i] !== session.groupId) {
+        // 显示群名
+        // app.bots[env.app.selfId].getGroupInfo(Number(session.groupId)).then(groupInfo => {
+        //   const msg = `[${groupInfo.groupName}]\n[${session.$username}] ${session.message}`
+        //   app.bots[env.app.selfId].sendGroupMsg(groupList[i], msg)
+        // })
+        const msg = `[${session.$username}] ${session.message}`
+        app.bots[env.app.selfId].sendGroupMsg(groupList[i], msg)
+      }
+    }
+  })
+}
