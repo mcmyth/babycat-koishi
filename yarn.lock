@@ -1911,10 +1911,10 @@ koishi-adapter-onebot@^3.0.0-beta.0:
     ms "^2.1.3"
     ws "^7.4.2"
 
-koishi-core@^2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/koishi-core/-/koishi-core-2.5.1.tgz#1af6ed7067f534217df3b4c42725c340824da5a2"
-  integrity sha512-Mzj/TW9MoVq27ljOqgK9hc8qfIEWEoN54FzrOj8hAiE9mot69x+tYz0WIAN9a6Bkf7HCpAfRuuIxKJ5lZFyICw==
+koishi-core@^2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/koishi-core/-/koishi-core-2.5.2.tgz#5e8f3356ebfd32c1cd82c1f8a5f1faa40eeab7d9"
+  integrity sha512-TgF/m6NtnMsCPn86gTihVv08u0VUQdc/P/qWCoqJuyVeN+4ItrnNM4muPfCSCIuFLp+woswzSUWnM9Lk+fTYaQ==
   dependencies:
     "@types/koa-bodyparser" "^4.3.0"
     "@types/koa-router" "^7.4.1"
@@ -1944,14 +1944,14 @@ koishi-utils@^3.2.1:
   dependencies:
     supports-color "^8.1.0"
 
-koishi@^2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/koishi/-/koishi-2.5.1.tgz#87b29b2ed82d30c6f50fe3481201b82ffe9e2795"
-  integrity sha512-ymHLqFuNdTVasyUElcEvdcjTNZdY2YleSGJQnFf004P038K3SYFNmp+v7dil3GKQn6/BUZW8yc780BMsZ32HcA==
+koishi@^2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/koishi/-/koishi-2.5.2.tgz#d3e20df002043067d542dc24b032a9f33a3f1d27"
+  integrity sha512-1+YhkLKosgfuv+XtshA3qZgQ/HTu82NSilvCbhMHZc4Q7LSEP3VhI3dF/0KZmpfStF2+bQGCXIb4H2Tf9gIHFw==
   dependencies:
     cac "^6.7.1"
     kleur "^4.1.3"
-    koishi-core "^2.5.1"
+    koishi-core "^2.5.2"
     koishi-plugin-common "^3.0.3"
     prompts "^2.4.0"
 
