@@ -8,6 +8,7 @@ export default class {
   app: App
   constructor () {
     this.app = new App(env.app)
+    this.app.plugin(require('koishi-plugin-mysql'), env.db.mysql)
   }
 
   public async run () {
