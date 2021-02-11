@@ -14,6 +14,8 @@ export class commander {
         return message
       })
 
+    app.command('now').action((_) => new Date().toLocaleString())
+
     app.command('wikipic [date]')
       .action(async (_, date) => new WikiPic().getText(date || new Date().toDateString()))
 
