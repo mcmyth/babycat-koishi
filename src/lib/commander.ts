@@ -13,18 +13,16 @@ export class commander {
       .action((_, message) => {
         return message
       })
+
     app.command('wikipic [date]')
-      .action(async (_) => {
-        let date: string = new Date().toDateString()
-        // 判断[date]参数是否存在,存在则使用指定的日期
-        if (typeof _.args !== 'undefined' && _.args.length > 0) date = _.args[0]
-        return new WikiPic().getText(date)
-      })
+      .action(async (_, date) => new WikiPic().getText(date || new Date().toDateString()))
+
     app.command('auth <member> <level>', { authority: 4 })
       .action(async (_, member, level) => {
         const auth = new Authority(app)
         return await auth.setAuthority(auth.getUser(member), Number(level))
       })
+
     app.command('ignore <member>', { authority: 4 })
       .action(async (_, member, level) => {
         const auth = new Authority(app)
