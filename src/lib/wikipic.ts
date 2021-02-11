@@ -28,15 +28,9 @@ export class WikiPic {
     return new Promise((resolve, reject) => {
       https.get(this.options, (res) => {
         let html: string
-        res.on('data', function (data) {
-          html += data
-        })
-        res.on('end', function () {
-          resolve(html)
-        })
-        res.on('error', function (err) {
-          reject(err)
-        })
+        res.on('data', data => { html += data })
+        res.on('end', () => { resolve(html) })
+        res.on('error', err => { reject(err) })
       })
     })
   }

@@ -34,7 +34,7 @@ export class commander {
       })
 
     app.command('ignore <member>', { authority: 4 })
-      .action(async (_, member, level) => {
+      .action(async (_, member) => {
         const auth = new Authority(app)
         return await auth.setIgnore(auth.getUser(member))
       })
