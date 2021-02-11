@@ -1,6 +1,7 @@
 import { App } from 'koishi-core'
 import { WikiPic } from './wikipic'
 import { Authority } from './authority'
+import { Ocr } from './ocr'
 import { env } from '../config/env'
 
 export class commander {
@@ -37,6 +38,11 @@ export class commander {
       .action(async (_, member) => {
         const auth = new Authority(app)
         return await auth.setIgnore(auth.getUser(member))
+      })
+
+    app.command('ocr <img>')
+      .action(async (_, img) => {
+        return await Ocr.tencent(img)
       })
   }
 }
