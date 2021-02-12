@@ -11,6 +11,12 @@ export class commander {
   }
 
   static index (app: App) {
+    app.on('message', async session => {
+      if (typeof session.message !== 'undefined' && env.app.prefix.indexOf(session.message) !== -1) {
+        await session.$send(`[${new Date().toLocaleString()}]\n啪!`)
+      }
+    })
+
     app.command('echo <message> [group]')
       .action(async (_, message, group) => {
         const _group: number = Number(group)
@@ -22,8 +28,6 @@ export class commander {
           return message
         }
       })
-
-    app.command('now').action((_) => new Date().toLocaleString())
 
     app.command('wikipic [date]')
       .action(async (_, date) => new WikiPic().getText(date || new Date().toDateString()))
