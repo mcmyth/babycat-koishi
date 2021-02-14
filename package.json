@@ -7,7 +7,6 @@
     "debug": "nodemon --watch src/**/*.ts --exec node --trace-warnings -r ts-node/register ./src/index.ts"
   },
   "dependencies": {
-    "@types/node-schedule": "^1.3.1",
     "cheerio": "^1.0.0-rc.5",
     "koishi": "^2.5.2",
     "koishi-adapter-cqhttp": "^1.0.8",
@@ -15,9 +14,12 @@
     "koishi-plugin-common": "^3.0.3",
     "koishi-plugin-mysql": "^2.1.0",
     "node-schedule": "^2.0.0",
-    "typeorm": "^0.2.30"
+    "typeorm": "^0.2.30",
+    "ws": "^7.4.3"
   },
   "devDependencies": {
+    "@types/node-schedule": "^1.3.1",
+    "@types/ws": "^7.4.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "eslint": "^7.19.0",
