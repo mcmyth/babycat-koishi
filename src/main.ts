@@ -2,8 +2,9 @@ import { commander } from './lib/commander'
 import { App } from 'koishi-core'
 import 'koishi-adapter-cqhttp'
 import { env } from './config/env'
-import { BotSchedule } from './plugin/schedule'
-import { Messenger } from './plugin/messenger'
+// import { BotSchedule } from './plugin/schedule'
+import { BolgTask } from './plugin/blog'
+// import { Messenger } from './plugin/messenger'
 export default class {
   app: App
   constructor () {
@@ -14,12 +15,13 @@ export default class {
   public async run () {
     await this.app.start()
     // 定时任务
-    new BotSchedule(this.app).start()
+    // new BotSchedule(this.app).start()
     // 处理命令
     commander.index(this.app)
     // 消息转发
-    await Messenger(this.app)
+    // await Messenger(this.app)
     this.messageListener()
+    await new BolgTask(this.app).start()
   }
 
   public messageListener () {
