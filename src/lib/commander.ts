@@ -3,6 +3,7 @@ import { WikiPic } from './wikipic'
 import { Authority } from './authority'
 import { Ocr } from './ocr'
 import { env } from '../config/env'
+import EvilWord from './EvilWord'
 
 export class commander {
   static parser (text: string) {
@@ -47,6 +48,19 @@ export class commander {
     app.command('ocr <img>')
       .action(async (_, img) => {
         return await Ocr.tencent(img)
+      })
+
+    app.command('evil <mode> <message>', { authority: 4 })
+      .action(async (_, mode, message) => {
+        if (mode === 'del') {
+          const count = await EvilWord.delEvilWord(message)
+          return `共删除了${count}个关键字`
+        }
+        if (mode === 'add') {
+          const result = await EvilWord.addEvilWord(message)
+          return result ? '添加成功' : '添加失败'
+        }
+        return '命令语法不正确'
       })
   }
 }
