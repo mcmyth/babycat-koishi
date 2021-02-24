@@ -2,6 +2,8 @@ import { commander } from './lib/commander'
 import { App } from 'koishi-core'
 import 'koishi-adapter-cqhttp'
 import { env } from './config/env'
+import YouTube from './lib/youtube'
+// import EvilWord from './lib/EvilWord'
 // import { BotSchedule } from './plugin/schedule'
 import { BolgTask } from './plugin/blog'
 // import { Messenger } from './plugin/messenger'
@@ -26,10 +28,12 @@ export default class {
 
   public messageListener () {
     this.app.on('message', session => {
-      if (session.messageType === 'group') {
+      if (session.messageType === 'group' && session.message !== undefined) {
         console.log(`[Group ${session.groupId}] ${session.message}`)
+        const yt = new YouTube(session, env.googleKey)
+        yt.sendInfo(session.message)
       }
-      if (session.messageType === 'private') {
+      if (session.messageType === 'private' && session.message !== undefined) {
         console.log(`[Group ${session.userId}] ${session.message}`)
       }
     })
