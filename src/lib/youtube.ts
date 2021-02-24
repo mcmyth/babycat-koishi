@@ -32,10 +32,11 @@ interface YouTubeInfo {
 export default class {
   session: RawSession<'message'>
   apikey?: string
-
-  constructor (session: RawSession<'message'>, apikey?: string) {
+  useProxy: boolean
+  constructor (session: RawSession<'message'>, useProxy: boolean = false, apikey?: string) {
     this.session = session
     this.apikey = apikey
+    this.useProxy = useProxy
   }
 
   // 返回一个YouTubeID的数组
@@ -78,7 +79,7 @@ export default class {
 
     if (typeof this.apikey !== 'undefined') {
       // 通过apiKey获取视频信息
-      const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, true))
+      const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
       if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
       return {
         id: response.items[0].id,
@@ -90,7 +91,10 @@ export default class {
     } else {
       // 通过YouTubeDL获取视频信息
       return new Promise(resolve => {
-        const options = [`--proxy=http://${env.proxy.host}:${env.proxy.port}`]
+        let options: string[] = []
+        if (this.useProxy) {
+          options = [`--proxy=http://${env.proxy.host}:${env.proxy.port}`]
+        }
         getInfo(`https://youtu.be/${idList[0]}`, options, async (err, info) => {
           if (err) throw err
           resolve(info)
@@ -100,17 +104,19 @@ export default class {
   }
 
   public async sendInfo (url: string) {
+    const useCache = true
     // 感叹号开头的消息不处理
     if (url[0] === '!' || url[0] === '！') return
     // 获得视频信息
-    const info = await this.getInfo(url, true)
+    const info = await this.getInfo(url, useCache)
     if (typeof info === 'undefined') return
     // 检测敏感词
     if (await EvilWord.detectEvilWord(info.title)) return
     // 写入缓存
-    const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
-    const configPath = `${tmpdir()}/babycat/yt_${info.id}.json`
-    writeFile(configPath, JSON.stringify(info), (error) => { if (error) console.log(error) })
+    if (useCache) {
+      const configPath = `${tmpdir()}/babycat/yt_${info.id}.json`
+      writeFile(configPath, JSON.stringify(info), (error) => { if (error) console.log(error) })
+    }
     // 下载图片后推送消息
     const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
     if (await utils.download(`https://img.youtube.com/vi/${info.id}/maxresdefault.jpg`, imagePath, this.useProxy, useCache)) {
