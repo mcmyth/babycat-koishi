@@ -112,7 +112,8 @@ export default class {
     const configPath = `${tmpdir()}/babycat/yt_${info.id}.json`
     writeFile(configPath, JSON.stringify(info), (error) => { if (error) console.log(error) })
     // 下载图片后推送消息
-    if (await utils.download(`https://img.youtube.com/vi/${info.title}/maxresdefault.jpg`, imagePath, true, true)) {
+    const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
+    if (await utils.download(`https://img.youtube.com/vi/${info.id}/maxresdefault.jpg`, imagePath, this.useProxy, useCache)) {
       const text = `${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
       await this.session.$send(opencc.hongKongToSimplified(text))
     } else {
