@@ -10,23 +10,18 @@ import { writeFile, existsSync, readFile } from 'fs'
 
 const opencc = require('node-opencc')
 
-declare module 'youtube-dl' {
-  // eslint-disable-next-line no-unused-vars
-  interface Info {
-    id: string,
-    title: string,
-    url: string,
-    thumbnail: string,
-    description: string
-  }
-}
-
 interface YouTubeInfo {
   id: string,
   title: string,
   url: string,
   thumbnail: string,
-  description: string
+  description: string,
+  uploader: string
+}
+
+declare module 'youtube-dl' {
+  // eslint-disable-next-line no-unused-vars
+  interface Info extends YouTubeInfo {}
 }
 
 export default class {
@@ -94,7 +89,8 @@ export default class {
         title: obj.title,
         url: `https://youtu.be/${response.items[0].id}`,
         thumbnail,
-        description: obj.description
+        description: obj.description,
+        uploader: obj.channelTitle
       }
     } else {
       // 通过YouTubeDL获取视频信息
@@ -130,7 +126,7 @@ export default class {
     // 下载图片后推送消息
     const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
     if (await utils.download(info.thumbnail, imagePath, this.useProxy, useCache)) {
-      const text = `${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
+      const text = `[${info.uploader}] ${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
       await this.session.$send(opencc.hongKongToSimplified(text))
     } else {
       // 图片下载失败则只推送标题
