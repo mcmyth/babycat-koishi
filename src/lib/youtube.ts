@@ -81,11 +81,18 @@ export default class {
       // 通过apiKey获取视频信息
       const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
       if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
+      // 判断没有max版本则用medium版本封面图
+      let thumbnail: string
+      if (('maxres' in response.items[0].snippet)) {
+        thumbnail = response.items[0].snippet.thumbnails.maxres.url
+      } else {
+        thumbnail = response.items[0].snippet.thumbnails.medium.url
+      }
       return {
         id: response.items[0].id,
         title: response.items[0].snippet.title,
         url: `https://youtu.be/${response.items[0].id}`,
-        thumbnail: `https://img.youtube.com/vi/${response.items[0].id}/maxresdefault.jpg`,
+        thumbnail,
         description: response.items[0].snippet.description
       }
     } else {
@@ -119,7 +126,7 @@ export default class {
     }
     // 下载图片后推送消息
     const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
-    if (await utils.download(`https://img.youtube.com/vi/${info.id}/maxresdefault.jpg`, imagePath, this.useProxy, useCache)) {
+    if (await utils.download(info.thumbnail, imagePath, this.useProxy, useCache)) {
       const text = `${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
       await this.session.$send(opencc.hongKongToSimplified(text))
     } else {
