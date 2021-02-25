@@ -51,10 +51,10 @@ export default class {
       const _url = new URL(urlList[i])
       if (domain.indexOf(_url.hostname) !== -1) {
         if (_url.hostname === 'youtu.be') {
-          idList.push(_url.pathname.replace('/', ''))
+          idList.push(encodeURI(_url.pathname.replace('/', '')))
         } else {
           const v = _url.searchParams.get('v')
-          if (v !== null) idList.push(v)
+          if (v !== null) idList.push(encodeURI(v))
         }
       }
     }
