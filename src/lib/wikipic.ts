@@ -1,7 +1,8 @@
 import { load } from 'cheerio'
 import * as https from 'https'
+import HttpsProxyAgent from 'https-proxy-agent'
 import { CQCode } from 'koishi-utils'
-
+import { env } from '../config/env'
 interface WikiPicObject {
   [index: number]: {
     date: string | undefined,
@@ -16,6 +17,7 @@ export class WikiPic {
     rejectUnauthorized: false,
     hostname: 'zh.wikipedia.org',
     path: '',
+    agent: HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
     headers: {
       'Accept-Language': 'zh-CN,zh;q=0.9',
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
@@ -72,7 +74,7 @@ export class WikiPic {
           }
         })
         resolve(undefined)
-      })
+      }).catch(() => { resolve([{ date: undefined, description: '获取失败', small: undefined, large: undefined }]) })
     })
   }
 
