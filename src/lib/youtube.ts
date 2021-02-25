@@ -82,18 +82,19 @@ export default class {
       const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
       if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
       // 判断没有max版本则用medium版本封面图
+      const obj = response.items[0].snippet
       let thumbnail: string
-      if (('maxres' in response.items[0].snippet)) {
-        thumbnail = response.items[0].snippet.thumbnails.maxres.url
+      if (('maxres' in obj.thumbnails)) {
+        thumbnail = obj.thumbnails.maxres.url
       } else {
-        thumbnail = response.items[0].snippet.thumbnails.medium.url
+        thumbnail = obj.thumbnails.medium.url
       }
       return {
         id: response.items[0].id,
-        title: response.items[0].snippet.title,
+        title: obj.title,
         url: `https://youtu.be/${response.items[0].id}`,
         thumbnail,
-        description: response.items[0].snippet.description
+        description: obj.description
       }
     } else {
       // 通过YouTubeDL获取视频信息
