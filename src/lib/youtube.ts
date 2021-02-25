@@ -111,7 +111,9 @@ export default class {
   }
 
   public async sendInfo (url: string) {
-    const useCache = true
+    // 星号开头不采用缓存
+    let useCache: boolean = true
+    if (url[0] === '*') useCache = false
     // 感叹号开头的消息不处理
     if (url[0] === '!' || url[0] === '！') return
     // 获得视频信息
