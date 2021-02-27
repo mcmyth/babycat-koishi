@@ -1,8 +1,6 @@
-import { getInfo, Info } from 'youtube-dl'
 import { RawSession } from 'koishi-core/dist/context'
 import { CQCode } from 'koishi-utils'
 import EvilWord from './EvilWord'
-import { env } from '../config/env'
 import utils from './utils'
 import { pathToFileURL } from 'url'
 import { tmpdir } from 'os'
@@ -19,16 +17,11 @@ interface YouTubeInfo {
   uploader: string
 }
 
-declare module 'youtube-dl' {
-  // eslint-disable-next-line no-unused-vars
-  interface Info extends YouTubeInfo {}
-}
-
 export default class {
   session: RawSession<'message'>
-  apikey?: string
+  apikey: string
   useProxy: boolean
-  constructor (session: RawSession<'message'>, useProxy: boolean = false, apikey?: string) {
+  constructor (session: RawSession<'message'>, useProxy: boolean = false, apikey: string) {
     this.session = session
     this.apikey = apikey
     this.useProxy = useProxy
@@ -57,7 +50,7 @@ export default class {
   }
 
   // 获取YouTube视频信息,无apiKey则通过YouTubeDL获取
-  private async getInfo (url: string, cache?: boolean): Promise<Info | YouTubeInfo | undefined> {
+  private async getInfo (url: string, cache?: boolean): Promise<YouTubeInfo | undefined> {
     // 获得视频ID
     const idList = this.getId(url)
     if (typeof idList === 'undefined') return
@@ -72,38 +65,24 @@ export default class {
       })
     }
 
-    if (typeof this.apikey !== 'undefined') {
-      // 通过apiKey获取视频信息
-      const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
-      if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
-      // 判断没有max版本则用medium版本封面图
-      const obj = response.items[0].snippet
-      let thumbnail: string
-      if (('maxres' in obj.thumbnails)) {
-        thumbnail = obj.thumbnails.maxres.url
-      } else {
-        thumbnail = obj.thumbnails.medium.url
-      }
-      return {
-        id: response.items[0].id,
-        title: obj.title,
-        url: `https://youtu.be/${response.items[0].id}`,
-        thumbnail,
-        description: obj.description,
-        uploader: obj.channelTitle
-      }
+    // 通过apiKey获取视频信息
+    const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
+    if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
+    // 判断没有max版本则用medium版本封面图
+    const obj = response.items[0].snippet
+    let thumbnail: string
+    if (('maxres' in obj.thumbnails)) {
+      thumbnail = obj.thumbnails.maxres.url
     } else {
-      // 通过YouTubeDL获取视频信息
-      return new Promise(resolve => {
-        let options: string[] = []
-        if (this.useProxy) {
-          options = [`--proxy=http://${env.proxy.host}:${env.proxy.port}`]
-        }
-        getInfo(`https://youtu.be/${idList[0]}`, options, async (err, info) => {
-          if (err) throw err
-          resolve(info)
-        })
-      })
+      thumbnail = obj.thumbnails.medium.url
+    }
+    return {
+      id: response.items[0].id,
+      title: obj.title,
+      url: `https://youtu.be/${response.items[0].id}`,
+      thumbnail,
+      description: obj.description,
+      uploader: obj.channelTitle
     }
   }
 
