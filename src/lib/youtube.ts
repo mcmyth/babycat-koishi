@@ -96,7 +96,7 @@ export default class {
     const info = await this.getInfo(url, useCache)
     if (typeof info === 'undefined') return
     // 检测敏感词
-    if (await EvilWord.detectEvilWord(info.title)) return
+    if (await EvilWord.detectEvilWord(info.uploader + info.title)) return
     // 写入缓存
     if (useCache) {
       const configPath = `${tmpdir()}/babycat/yt_${info.id}.json`
@@ -105,7 +105,8 @@ export default class {
     // 下载图片后推送消息
     const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
     if (await utils.download(info.thumbnail, imagePath, this.useProxy, useCache)) {
-      const text = `[${info.uploader}] ${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
+      if (!this.session.messageId) return
+      const text = `${CQCode.stringify('reply', { id: this.session.messageId })}[${info.uploader}] ${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
       await this.session.$send(opencc.hongKongToSimplified(text))
     } else {
       // 图片下载失败则只推送标题
