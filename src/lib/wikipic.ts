@@ -3,6 +3,9 @@ import * as https from 'https'
 import HttpsProxyAgent from 'https-proxy-agent'
 import { CQCode } from 'koishi-utils'
 import { env } from '../config/env'
+import { tmpdir } from 'os'
+import utils from './utils'
+import { pathToFileURL } from 'url'
 interface WikiPicObject {
   [index: number]: {
     date: string | undefined,
@@ -88,8 +91,16 @@ export class WikiPic {
     const small = src[0].small
     const large = src[0].large
     if (typeof small !== 'undefined') {
-      img = CQCode.stringify('image', { file: small })
+      const imagePath = `${tmpdir()}/babycat/wikipic_${day}.jpg`
+      if (await utils.download(small, imagePath, true, false)) {
+        img = CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })
+        return `[${day}维基日图]\n${img}\n${desc}\n小:${small}\n大:${large}`
+      } else {
+        // 图片下载
+        img = `[${day}维基日图]\n[缩略图获取失败]\n${desc}\n小:${small}\n大:${large}`
+      }
     } else {
+      // 所有数据获取失败
       img = '[维基日图 Error] 图片获取失败'
     }
     return `[${day}维基日图]\n${img}\n${desc}\n小:${small}\n大:${large}`
