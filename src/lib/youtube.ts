@@ -18,17 +18,17 @@ interface YouTubeInfo {
 }
 
 export default class {
-  session: RawSession<'message'>
+  session?: RawSession<'message'>
   apikey: string
   useProxy: boolean
-  constructor (session: RawSession<'message'>, useProxy: boolean = false, apikey: string) {
+  constructor (session: RawSession<'message'> | undefined, useProxy: boolean = false, apikey: string) {
     this.session = session
     this.apikey = apikey
     this.useProxy = useProxy
   }
 
   // 返回一个YouTubeID的数组
-  private getId (url: string): Array<string> | undefined {
+  public getId (url: string): Array<string> | undefined {
     const domain = ['www.youtube.com', 'm.youtube.com', 'youtube.com', 'youtu.be']
     // 获取文本中的所有链接
     const urlList = url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g)
@@ -50,7 +50,7 @@ export default class {
   }
 
   // 获取YouTube视频信息,无apiKey则通过YouTubeDL获取
-  private async getInfo (url: string, cache?: boolean): Promise<YouTubeInfo | undefined> {
+  public async getInfo (url: string, cache?: boolean): Promise<YouTubeInfo | undefined> {
     // 获得视频ID
     const idList = this.getId(url)
     if (typeof idList === 'undefined') return
@@ -66,8 +66,9 @@ export default class {
     }
 
     // 通过apiKey获取视频信息
-    const response = JSON.parse(await utils.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`, this.useProxy))
-    if (response.items.length === 0) { await this.session.$send('该视频不存在'); return }
+    const apiURL = `https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`
+    const response = JSON.parse(await utils.get(apiURL, this.useProxy))
+    if (typeof this.session !== 'undefined' && response.items.length === 0) { await this.session.$send('该视频不存在'); return }
     // 判断没有max版本则用medium版本封面图
     const obj = response.items[0].snippet
     let thumbnail: string
@@ -87,6 +88,10 @@ export default class {
   }
 
   public async sendInfo (url: string) {
+    if (typeof this.session === 'undefined') {
+      console.log('session is undefined')
+      return
+    }
     // 星号开头不采用缓存
     let useCache: boolean = true
     if (url[0] === '*') useCache = false
@@ -96,7 +101,11 @@ export default class {
     const info = await this.getInfo(url, useCache)
     if (typeof info === 'undefined') return
     // 检测敏感词
-    if (await EvilWord.detectEvilWord(info.uploader + info.title)) return
+    const messageId = Number(this.session.messageId)
+    if (await EvilWord.detectEvilWord(info.uploader + info.title) !== false) {
+      await this.session.$send(`${CQCode.stringify('reply', { id: messageId })}检测到该视频可能存在非法内容,已阻止解析该内容。\n如果您认为有误,请发送/cat review ${messageId}来提交到人工审核。`)
+      return
+    }
     // 写入缓存
     if (useCache) {
       const configPath = `${tmpdir()}/babycat/yt_${info.id}.json`
@@ -106,11 +115,18 @@ export default class {
     const imagePath = `${tmpdir()}/babycat/yt_${info.id}.jpg`
     if (await utils.download(info.thumbnail, imagePath, this.useProxy, useCache)) {
       if (!this.session.messageId) return
-      const text = `${CQCode.stringify('reply', { id: this.session.messageId })}[${info.uploader}] ${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
+      const text = `${CQCode.stringify('reply', { id: messageId })}[${info.uploader}] ${info.title}\n${CQCode.stringify('image', { file: String(pathToFileURL(imagePath)) })}`
       await this.session.$send(opencc.hongKongToSimplified(text))
     } else {
       // 图片下载失败则只推送标题
-      await this.session.$send(opencc.hongKongToSimplified(info.title))
+      await this.session.$send(`${CQCode.stringify('reply', { id: messageId })}${opencc.hongKongToSimplified(info.title)}`)
+    }
+  }
+
+  public async checkVideo (message: string) {
+    const info = await this.getInfo(message, true)
+    if (typeof info !== 'undefined') {
+      return await EvilWord.detectEvilWord(info.uploader + info.title)
     }
   }
 }

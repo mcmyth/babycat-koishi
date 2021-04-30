@@ -30,7 +30,7 @@ export default class {
     this.app.on('message', session => {
       if (session.messageType === 'group' && session.message !== undefined) {
         console.log(`[Group ${session.groupId}] ${session.message}`)
-        const yt = new YouTube(session, false, env.googleKey)
+        const yt = new YouTube(session, true, env.googleKey)
         yt.sendInfo(session.message)
       }
       if (session.messageType === 'private' && session.message !== undefined) {

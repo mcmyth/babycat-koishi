@@ -4,6 +4,7 @@ import { Authority } from './authority'
 import { Ocr } from './ocr'
 import { env } from '../config/env'
 import EvilWord from './EvilWord'
+import YouTube from '../lib/youtube'
 
 export class commander {
   static parser (text: string) {
@@ -60,7 +61,26 @@ export class commander {
           const result = await EvilWord.addEvilWord(message)
           return result ? '添加成功' : '添加失败'
         }
+        if (mode === 'check') {
+          const result = await EvilWord.addEvilWord(message)
+          return result ? '添加成功' : '添加失败'
+        }
         return '命令语法不正确'
+      })
+
+    app.command('review <msgId>')
+      .action(async (_, msgId) => {
+        let message
+        try { message = await app.bots[env.app.selfId].getMsg(Number(msgId)) } catch (e) { return '人工审核请求提交失败，该消息id可能不存在' }
+        await app.bots[env.app.selfId].sendGroupMsg(env.noticeGroup, `[人工审核请求]\n[${message.sender.userId}] ${message.message}`)
+        const yt = new YouTube(undefined, true, env.googleKey)
+        const check = await yt.checkVideo(message.message)
+        if (check !== false) {
+          const ret = `[YT视频检测到非法关键字]\n${Buffer.from(JSON.stringify(check)).toString('base64')}`
+          console.log(ret)
+          await app.bots[env.app.selfId].sendGroupMsg(env.noticeGroup, ret)
+        }
+        return '人工审核请求已提交'
       })
   }
 }
