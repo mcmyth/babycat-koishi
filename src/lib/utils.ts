@@ -58,7 +58,7 @@ export default class {
         request(url, options, function (res) {
           res.on('data', function (data) { source += data })
           res.on('end', function () { resolve(source) })
-        }).on('error', function () { console.log('获取数据错误') })
+        }).on('error', function () { console.log('获取数据错误:' + url) })
       } else {
         // URL协议类型不为http或https则不响应
         resolve('')
