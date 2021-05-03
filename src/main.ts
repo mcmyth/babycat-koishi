@@ -29,12 +29,12 @@ export default class {
   public messageListener () {
     this.app.on('message', session => {
       if (session.messageType === 'group' && session.message !== undefined) {
-        console.log(`[Group ${session.groupId}] ${session.message}`)
+        console.log(`[Group ${session.groupId}](id: ${session.messageId}) ${session.message}`)
         const yt = new YouTube(session, true, env.googleKey)
         yt.sendInfo(session.message)
       }
       if (session.messageType === 'private' && session.message !== undefined) {
-        console.log(`[Group ${session.userId}] ${session.message}`)
+        console.log(`[Private ${session.userId}](id: ${session.messageId}) ${session.message}`)
       }
     })
   }

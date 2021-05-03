@@ -71,7 +71,10 @@ export class commander {
     app.command('review <msgId>')
       .action(async (_, msgId) => {
         let message
-        try { message = await app.bots[env.app.selfId].getMsg(Number(msgId)) } catch (e) { return '人工审核请求提交失败，该消息id可能不存在' }
+        try { message = await app.bots[env.app.selfId].getMsg(Number(msgId)) } catch (e) {
+          console.log(e)
+          return '人工审核请求提交失败，该消息id可能不存在'
+        }
         await app.bots[env.app.selfId].sendGroupMsg(env.noticeGroup, `[人工审核请求]\n[${message.sender.userId}] ${message.message}`)
         const yt = new YouTube(undefined, true, env.googleKey)
         const check = await yt.checkVideo(message.message)
