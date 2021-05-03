@@ -105,7 +105,7 @@ export default class {
     // 检测敏感词
     const messageId = Number(this.session.messageId)
     if (await EvilWord.detectEvilWord(info.uploader + info.title) !== false) {
-      await this.session.$send(`${CQCode.stringify('reply', { id: messageId })}检测到该视频可能存在非法内容,已阻止解析该内容。\n如果您认为有误,请发送/cat review ${messageId}来提交到人工审核。`)
+      await this.session.$send(`${CQCode.stringify('reply', { id: messageId })}检测到该视频可能存在非法内容,已阻止解析。\n如果您认为有误,请发送以下指令来提交到人工审核:\n/cat review "${messageId}"`)
       return
     }
     // 写入缓存
