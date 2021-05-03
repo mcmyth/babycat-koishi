@@ -4,7 +4,7 @@ import EvilWord from './EvilWord'
 import utils from './utils'
 import { pathToFileURL } from 'url'
 import { tmpdir } from 'os'
-import { writeFile, existsSync, readFile } from 'fs'
+import { writeFile, existsSync, readFile, readFileSync, unlink } from 'fs'
 
 const opencc = require('node-opencc')
 
@@ -67,9 +67,10 @@ export default class {
 
     // 通过apiKey获取视频信息
     const apiURL = `https://www.googleapis.com/youtube/v3/videos?part=snippet&hl=zh-CN&id=${idList[0]}&key=${this.apikey}`
-    const data = await utils.get(apiURL, this.useProxy)
-    console.log(data)
-    const response = JSON.parse(data)
+    const filePath = `${tmpdir()}/babycat/fullyt_${idList[0]}.json`
+    await utils.download(apiURL, filePath, this.useProxy, false)
+    const response = JSON.parse(await readFileSync(filePath, 'utf-8'))
+    unlink(filePath, () => {})
     if (typeof this.session !== 'undefined' && response.items.length === 0) { await this.session.$send('该视频不存在'); return }
     // 判断没有max版本则用medium版本封面图
     const obj = response.items[0].snippet
