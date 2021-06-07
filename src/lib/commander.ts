@@ -79,7 +79,8 @@ export class commander {
         const yt = new YouTube(undefined, true, env.googleKey)
         const check = await yt.checkVideo(message.message)
         if (check !== false) {
-          const ret = `[YT视频检测到非法关键字]\n${Buffer.from(JSON.stringify(check)).toString('base64')}`
+          const evilWordsBase64 = Buffer.from(String(check)).toString('base64')
+          const ret = `[YT视频检测到非法关键字]\nhttps://base64.us/#d=${encodeURI(evilWordsBase64)}`
           console.log(ret)
           await app.bots[env.app.selfId].sendGroupMsg(env.noticeGroup, ret)
         }

@@ -19,8 +19,19 @@ export default class EvilWord {
       const sql = "select word from evil_word where ? like CONCAT('%',word,'%') UNION select word from evil_word where word like CONCAT('%',?,'%')"
       connection.query(sql, [text, text], (err, result) => {
         if (err) throw err
-        if (result.length > 0) resolve(result); else resolve(false)
-        if (result.length > 0) console.log(result)
+        if (result.length > 0) {
+          if (result.length > 0) {
+            let words = ''
+            for (let i = 0; i < result.length; i++) {
+              words += result[i].word
+              if (i < result.length - 1) words += ','
+            }
+            resolve(words)
+          }
+          console.log('[YT非法关键字]' + result)
+        } else {
+          resolve(false)
+        }
       })
     })
   }
