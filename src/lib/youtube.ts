@@ -31,12 +31,12 @@ export default class {
   public getId (url: string): Array<string> | undefined {
     const domain = ['www.youtube.com', 'm.youtube.com', 'youtube.com', 'youtu.be']
     // 获取文本中的所有链接
-    const urlList = url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g)
+    const urlList = url.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi)
     const idList: Array<string> = []
     if (urlList === null) return undefined
     // 从所有链接中找到符合要求的URL并找到视频ID
     for (let i = 0; i < urlList.length; i++) {
-      const _url = new URL(urlList[i])
+      const _url = new URL(urlList[i].substr(0, 4).toLowerCase() === 'http' ? urlList[i] : 'http://' + urlList[i])
       if (domain.indexOf(_url.hostname) !== -1) {
         if (_url.hostname === 'youtu.be') {
           idList.push(encodeURI(_url.pathname.replace('/', '')))
