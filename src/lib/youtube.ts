@@ -37,14 +37,9 @@ export default class {
     // 从所有链接中找到符合要求的URL并找到视频ID
     for (let i = 0; i < urlList.length; i++) {
       const _url = new URL(urlList[i].substr(0, 4).toLowerCase() === 'http' ? urlList[i] : 'http://' + urlList[i])
-      if (domain.indexOf(_url.hostname) !== -1) {
-        if (_url.hostname === 'youtu.be') {
-          idList.push(encodeURI(_url.pathname.replace('/', '')))
-        } else {
-          const v = _url.searchParams.get('v')
-          if (v !== null) idList.push(encodeURI(v))
-        }
-      }
+      if (domain.indexOf(_url.hostname) === -1) break
+      const id: string | null = _url.hostname === 'youtu.be' ? encodeURI(_url.pathname.replace('/', '')) : _url.searchParams.get('v')
+      if (id !== null && id !== '') idList.push(encodeURI(id))
     }
     if (idList.length === 0) return undefined; else return idList
   }
@@ -101,7 +96,7 @@ export default class {
     // 感叹号开头的消息不处理
     if (url[0] === '!' || url[0] === '！') return
     // 获得视频信息
-    const info = await this.getInfo(url, useCache)
+    const info = await this.getInfo(CQCode.unescape(url), useCache)
     if (typeof info === 'undefined') return
     // 检测敏感词
     const messageId = Number(this.session.messageId)
