@@ -29,17 +29,15 @@ export default class {
 
   // 返回一个YouTubeID的数组
   public getId (url: string): Array<string> | undefined {
-    const domain = ['www.youtube.com', 'm.youtube.com', 'youtube.com', 'youtu.be']
-    // 获取文本中的所有链接
-    const urlList = url.match(/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gi)
-    const idList: Array<string> = []
+    // 获取文本中的YouTube链接
+    const urlList = url.match(/youtu(be\.com|\.be)\/([A-Za-z\d?&%=-]*)/gi)
     if (urlList === null) return undefined
-    // 从所有链接中找到符合要求的URL并找到视频ID
+    // 提取视频id
+    const idList: Array<string> = []
     for (let i = 0; i < urlList.length; i++) {
-      const _url = new URL(urlList[i].substr(0, 4).toLowerCase() === 'http' ? urlList[i] : 'http://' + urlList[i])
-      if (domain.indexOf(_url.hostname) === -1) break
-      const id: string | null = _url.hostname === 'youtu.be' ? encodeURI(_url.pathname.replace('/', '')) : _url.searchParams.get('v')
-      if (id !== null && id !== '') idList.push(encodeURI(id))
+      const _url = new URL('http://' + urlList[i])
+      const id: string | null = _url.hostname === 'youtu.be' ? _url.pathname.replace('/', '') : _url.searchParams.get('v')
+      if (id !== null && id !== '') idList.push(id)
     }
     if (idList.length === 0) return undefined; else return idList
   }
@@ -66,20 +64,13 @@ export default class {
     await utils.download(apiURL, filePath, this.useProxy, false)
     const response = JSON.parse(await readFileSync(filePath, 'utf-8'))
     unlink(filePath, () => {})
-    if (typeof this.session !== 'undefined' && response.items.length === 0) { await this.session.$send('该视频不存在'); return }
-    // 判断没有max版本则用medium版本封面图
+    if (typeof this.session !== 'undefined' && response.items.length === 0) { await this.session.$send(`${CQCode.stringify('reply', { id: Number(this.session.messageId) })}该视频不存在`); return }
     const obj = response.items[0].snippet
-    let thumbnail: string
-    if (('maxres' in obj.thumbnails)) {
-      thumbnail = obj.thumbnails.maxres.url
-    } else {
-      thumbnail = obj.thumbnails.medium.url
-    }
     return {
       id: response.items[0].id,
       title: obj.title,
       url: `https://youtu.be/${response.items[0].id}`,
-      thumbnail,
+      thumbnail: obj.thumbnails.maxres?.url || obj.thumbnails.medium.url,
       description: obj.description,
       uploader: obj.channelTitle
     }
