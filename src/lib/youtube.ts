@@ -30,13 +30,13 @@ export default class {
   // 返回一个YouTubeID的数组
   public getId (url: string): Array<string> | undefined {
     // 获取文本中的YouTube链接
-    const urlList = url.match(/youtu(be\.com|\.be)\/([A-Za-z\d?&%=-]*)/gi)
+    const urlList = url.match(/youtu(be\.com|\.be)\/([a-z\d?&%=_-]+)/gi)
     if (urlList === null) return undefined
     // 提取视频id
     const idList: Array<string> = []
     for (let i = 0; i < urlList.length; i++) {
       const _url = new URL('http://' + urlList[i])
-      const id: string | null = _url.hostname === 'youtu.be' ? _url.pathname.replace('/', '') : _url.searchParams.get('v')
+      const id: string | null = _url.hostname === 'youtu.be' ? _url.pathname.substring(1) : _url.searchParams.get('v')
       if (id !== null && id !== '') idList.push(id)
     }
     if (idList.length === 0) return undefined; else return idList
